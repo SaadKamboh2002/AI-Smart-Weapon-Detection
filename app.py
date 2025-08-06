@@ -299,7 +299,6 @@ def show_live_frame():
     import time
     import imageio
     import threading
-    # from playsound import playsound
 
     pygame.mixer.init()  # initialize pygame mixer
 
@@ -311,6 +310,8 @@ def show_live_frame():
     recording = False
     recording_end_time = 0
     last_alert_time = -float("inf")
+    weapon_detected_start_time = None  # to track duration of weapon detection
+
 
     if not os.path.exists("recordings"):
         os.makedirs("recordings")
@@ -353,7 +354,7 @@ def show_live_frame():
         result = results[0]  # single-frame detection result
 
         Gun = False
-        weapon_keywords = ("revolver", 'pistol') # keywords which will trigger the alarm and save recording
+        weapon_keywords = ("revolver", 'pistol', 'Assault Rifle') # keywords which will trigger the alarm and save recording
         allowed_classes = ['Pistol', 'Revolver', 'Assault Rifle'] # which will draw the bounding box
 
         # Check if any detection boxes exist
@@ -383,17 +384,22 @@ def show_live_frame():
         frame_buffer.append(frame_rgb.copy())  # store latest frame in buffer
 
         if Gun:
-            # here 5 second means alarm will sound after 5 seconds of previous alarm
-            if alarm_enabled and time.time() - last_alert_time > 5:
-                def play_alert():
-                    try:
-                        pygame.mixer.music.load("siren alert.mp3")
-                        pygame.mixer.music.play()
-                    except Exception as e:
-                        print("[ERROR] Playing sound:", e)
+            if weapon_detected_start_time is None:
+                weapon_detected_start_time = time.time()
+            elif time.time() - weapon_detected_start_time >= 2:
+                if alarm_enabled and time.time() - last_alert_time > 5:
+                    def play_alert():
+                        try:
+                            pygame.mixer.music.load("siren alert.mp3")
+                            pygame.mixer.music.play()
+                        except Exception as e:
+                            print("[ERROR] Playing sound:", e)
 
-                threading.Thread(target=play_alert, daemon=True).start()
-                last_alert_time = time.time()
+                    threading.Thread(target=play_alert, daemon=True).start()
+                    last_alert_time = time.time()
+        else:
+            weapon_detected_start_time = None  # reset if weapon not detected
+
 
             if not recording:
                 recording = True
