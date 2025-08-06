@@ -1,40 +1,23 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-# app with alarm, icon, increased confidence, shortcut keys, full screen mode, theme mode disabled, result label disabled
-
-
-# In[1]:
-
-
-"""
-Created on Thu Mar 27 00:20:35 2025
-
-@author: Saad Amir
-"""
-import sys
-import os
+import sys # for system path handling
+import os # for file path handling
 import tkinter as tk
-from tkinter import filedialog, Label, Button, Canvas
-from PIL import Image, ImageTk
-import cv2
+from tkinter import filedialog, Label, Button, Canvas # for GUI components
+from PIL import Image, ImageTk # for image processing
+import cv2 # for image processing
 from ultralytics import YOLO
-import threading
-from tkinter import messagebox
+import threading # for running live detection in a separate thread
+from tkinter import messagebox # for popup messages
 # import darkdetect
 from tkinter import ttk
 # from playsound import playsound
-import pygame
+import pygame # for playing sound (used instead of playsound as it allows for better control)
 
 cap = None # this will be used for storing the camera access
 live_running = False # this for storing information about live detection
-record_buffer_seconds = 5
-recording = False
-recording_writer = None
-recording_start_time = None
+record_buffer_seconds = 5 # default buffer time for recording
+recording = False # this will be used to check if recording is in progress
+recording_writer = None # this will be used to write the video frames to a file
+recording_start_time = None # this will be used to store the start time of recording
 recording_frames = []
 selected_fps = 25 # setting default fps to 25 for live detection
 alarm_enabled = True  # by default the alarm is enabled
@@ -50,23 +33,14 @@ ip_camera_url = ""        # optionally pre-fill or leave empty
 # we can use the normal way of reading model like model(yolo) but when we run the code
 # as a stand alone we get error of no model found so this is the 
 # best way to integrate model within the gui
-def resource_path_model(relative_path):
+def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
 # loading model via function
-model_path = resource_path_model("best4.pt")
+model_path = resource_path("best4.pt")
 model = YOLO(model_path)
-
-def resource_path(relative_path):
-    """Get the absolute path to the resource (for PyInstaller)."""
-    try:
-        base_path = sys._MEIPASS  # Set by PyInstaller at runtime
-    except AttributeError:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 # Tooltip class for hovering mouse for info and help button
 
@@ -126,16 +100,13 @@ class ToolTip:
             self.tip_window.destroy()
             self.tip_window = None
 
-
 # GUI setup
 root = tk.Tk() # creating the UI window
 
-# icon_image = tk.PhotoImage(file="logo.png")
-# root.iconphoto(True, icon_image)
-icon_path = resource_path("logo.png")
-icon_image = tk.PhotoImage(file=icon_path)
-root.iconphoto(True, icon_image)
+icon_image = tk.PhotoImage(file="logo.png") # loading the icon image
+root.iconphoto(True, icon_image) # setting the icon of the app
 
+# funtion to dynamically resize the background image when the window is resized
 def resize_background(event):
     global bg_image, resized_bg, bg_label
     new_width = event.width
@@ -146,13 +117,9 @@ def resize_background(event):
 
     
 # Load background image (match window size or resize as needed)
-# image = Image.open("BG.png")  
+image = Image.open("BG.png")  # loading image
 # bg_image = bg_image.resize((root.winfo_screenwidth(), root.winfo_screenheight()), Image.LANCZOS)
-# bg_image = ImageTk.PhotoImage(image)
-
-# loading image
-bg_image_path = resource_path("BG.png")
-image = Image.open(bg_image_path)
+bg_image = ImageTk.PhotoImage(image)
 
 
 
@@ -166,8 +133,6 @@ bg_label = tk.Label(root, image=bg_image)
 bg_label.image = bg_image  # keep reference
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 bg_label.bind("<Configure>", resize_background)
-
-
 
 
 root.title("Smart Behavior and Weapon Detection") # title displaying on top of the window
@@ -791,7 +756,7 @@ def process_file(file_path):
             results = model(frame)[0]
     
             for box in results.boxes:
-                if box.conf >= 0.5: # draw bounding box only if confidence is greater or equal 50% 
+                if box.conf >= 0.5:
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
                     label = f"{model.names[int(box.cls[0])]} {box.conf[0]:.2f}"
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -821,7 +786,3 @@ def process_file(file_path):
 
 # Start GUI loop
 root.mainloop()
-
-
-
-
