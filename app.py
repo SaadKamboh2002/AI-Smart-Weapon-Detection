@@ -134,7 +134,6 @@ bg_label.image = bg_image  # keep reference
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 bg_label.bind("<Configure>", resize_background)
 
-
 root.title("Smart Behavior and Weapon Detection") # title displaying on top of the window
 root.geometry("1200x850") # size of the application window
 root.attributes('-fullscreen', True)
@@ -269,7 +268,7 @@ def start_live_detection():
     file_label.config(text="Doing Live Detection") # display the text specified above the picture
 
 # function to stop detection
-def stop_live_detection():
+def stop_live_detection(event=None): # event is optional, used for binding to a key
     global cap, live_running, recording, recording_writer, recording_frames # accessing global variables
     live_running = False # setting live running to false because now we are stopping live detection
     if cap: # checking if there is something in th ecap variable
@@ -490,11 +489,8 @@ stop_sound_button.image = stop_sound_btn_img
 stop_sound_button.place(relx=1.0, rely=0.5, anchor="e")
 # essential_buttons.append(stop_sound_button)
 
-# stop_sound = tk.Button(root, text="Stop Sound", command=lambda: pygame.mixer.music.stop())
-# stop_sound.pack(side=tk.RIGHT, anchor="e", padx=1, pady=5)
-
-root.bind("<m>", lambda event: pygame.mixer.music.stop())
-
+root.bind("<m>", lambda event: pygame.mixer.music.stop()) # bind m key to stop sound
+root.bind("<s>", stop_live_detection)  # bind 's' key to stop live detection
 
 # function that will clear the ui, like images that are stuck in the canvas or the file labels
 def clear_canvas():
@@ -503,11 +499,6 @@ def clear_canvas():
     file_label.config(text="No file selected") # resetting the file label on top of the canvas
     # result_label.config(text="") # label below the image
 
-
-# Button(root, text="Clear Screen", command=clear_canvas).pack(pady=5) 
-
-
-# Button(root, text="Exit", command=root.destroy).pack(pady=5)
 
 # path or name of the file selected by the user shown above the canvas image,
 # if none is selected it displays text specified
@@ -612,9 +603,6 @@ fullscreen_button.image = fs_btn_img
 fullscreen_button.pack(pady=5)
 essential_buttons.append(fullscreen_button)
 
-# fullscreen_button = tk.Button(root, text="Enable Full Screen", command=toggle_canvas_fullscreen)
-# fullscreen_button.place(relx=0.99, rely=0.99, anchor="se")
-
 # the clear canvas button, calls the clear_canvas function
 clear_btn_img = tk.PhotoImage(file="new buttons/CLS.png")
 clear_button = tk.Button(upper_right_frame, image=clear_btn_img, borderwidth=0, highlightthickness=0, command=clear_canvas)
@@ -643,8 +631,6 @@ help_button = tk.Button(lower_right_frame, image=help_btn_img, borderwidth=0, hi
 help_button.image = help_btn_img
 help_button.pack(pady=5)
 normal_mode_buttons.append(help_button)
-
-
 
 if info_button.winfo_exists():
     ToolTip(info_button, """The Smart Weapon Detection System automatically /n 
@@ -675,9 +661,6 @@ if platform.system() == "Darwin":  # macOS
     root.bind("<Command-f>", toggle_fullscreen)
 else:  # Windows or Linux
     root.bind("<Control-f>", toggle_fullscreen)
-
-# result_label = Label(root, text="", fg="green")
-# result_label.pack()
 
 # Image/Video Detection Handler
 def process_file(file_path):
