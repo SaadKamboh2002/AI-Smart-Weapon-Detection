@@ -11,6 +11,10 @@ from tkinter import messagebox # for popup messages
 from tkinter import ttk
 # from playsound import playsound
 import pygame # for playing sound (used instead of playsound as it allows for better control)
+from collections import deque
+import time # to manage alarm time and recording time
+import imageio # ussed to save video frames
+
 
 cap = None # this will be used for storing the camera access
 live_running = False # this for storing information about live detection
@@ -294,11 +298,6 @@ from datetime import datetime
 
 def show_live_frame():
     global cap, live_running, selected_fps, record_buffer_seconds
-
-    from collections import deque
-    import time
-    import imageio
-    import threading
 
     pygame.mixer.init()  # initialize pygame mixer
 
