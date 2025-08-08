@@ -126,13 +126,6 @@ image = Image.open("BG.png")  # loading image
 bg_image = ImageTk.PhotoImage(image)
 
 
-
-
-# # Create label and place it
-# bg_label = tk.Label(root, image=bg_photo)
-# bg_label.image = bg_photo  # keep reference
-# bg_label.place(x=0, y=0, relwidth=1, relheight=1)  # full window
-
 bg_label = tk.Label(root, image=bg_image)
 bg_label.image = bg_image  # keep reference
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
